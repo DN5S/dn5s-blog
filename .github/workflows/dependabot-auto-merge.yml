@@ -32,9 +32,21 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: false
+
+      - name: Debug pnpm setup
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in directory:"
+          ls -la
+          echo "pnpm version:"
+          pnpm --version
+          echo "Check for pnpm-workspace.yaml:"
+          ls -la pnpm-workspace.yaml 2>/dev/null || echo "No workspace file"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --no-optional
 
       - name: Run build
         run: pnpm run build
