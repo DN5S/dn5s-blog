@@ -38,3 +38,4 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH,MEDIUM'
           ignore-unfixed: true
+
