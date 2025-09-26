@@ -25,9 +25,7 @@ updates:
       - dependency-name: "tailwindcss"
       - dependency-name: "@tailwindcss/*"
       - dependency-name: "motion"
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
-        dependency-type: "indirect"
+      - dependency-name: "devalue"
 
     groups:
       patch-updates:
