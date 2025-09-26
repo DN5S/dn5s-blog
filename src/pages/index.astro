@@ -12,13 +12,17 @@ import AvailableForWork from "../components/available.astro";
 		<div class="group relative w-full min-h-dvh flex items-center justify-center">
 			<div class="absolute w-full h-dvh -z-10">
 				<WarpBackground
-					color1="#09090b"
-					color2="#27272a"
-					color3="#52525b"
-					speed={0.6}
-					swirl={0.5}
-					swirlIterations={10}
-					shapeScale={0.3}
+					colors={["#7300ff", "#eba8ff", "#00bfff", "#2a00ff"]}
+					colorBack="#000000"
+					softness={0.5}
+					intensity={0.5}
+					noise={0.25}
+					shape="sphere"
+					speed={1.0}
+					scale={1.0}
+					rotation={0}
+					offsetX={0}
+					offsetY={0}
 					client:load
 				/>
 			</div>
