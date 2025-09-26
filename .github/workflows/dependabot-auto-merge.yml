@@ -34,19 +34,15 @@ jobs:
           version: 9
           run_install: false
 
-      - name: Debug pnpm setup
+      - name: Remove workspace file if exists
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Files in directory:"
-          ls -la
-          echo "pnpm version:"
-          pnpm --version
-          echo "Check for pnpm-workspace.yaml:"
-          ls -la pnpm-workspace.yaml 2>/dev/null || echo "No workspace file"
+          if [ -f pnpm-workspace.yaml ]; then
+            echo "Removing pnpm-workspace.yaml"
+            rm pnpm-workspace.yaml
+          fi
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --no-optional
+        run: pnpm install --frozen-lockfile --no-optional --ignore-workspace
 
       - name: Run build
         run: pnpm run build
