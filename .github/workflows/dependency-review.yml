@@ -1,0 +1,56 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/dependency-review.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          license-check: true
+          allow-licenses: |
+            MIT
+            Apache-2.0
+            BSD-3-Clause
+            BSD-2-Clause
+            ISC
+            CC0-1.0
+            CC-BY-4.0
+            Unlicense
+            0BSD
+          comment-summary-in-pr: always
+
+      - name: Vulnerability Review
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload vulnerability results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
