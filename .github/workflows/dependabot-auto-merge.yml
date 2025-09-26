@@ -1,0 +1,80 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Remove workspace file if exists
+        run: |
+          if [ -f pnpm-workspace.yaml ]; then
+            echo "Removing pnpm-workspace.yaml"
+            rm pnpm-workspace.yaml
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run build
+        run: pnpm run build
+
+      - name: Auto-merge patch and minor dev dependencies
+        if: |
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch') ||
+          (steps.metadata.outputs.dependency-type == 'direct:development' &&
+           (steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-patch'))
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add comment for manual review
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-major' ||
+          (steps.metadata.outputs.dependency-type == 'direct:production' &&
+           steps.metadata.outputs.update-type == 'version-update:semver-minor')
+        run: |
+          gh pr comment "$PR_URL" --body "**Manual Review Required**
+
+          This PR contains a ${{ steps.metadata.outputs.update-type }} update for a ${{ steps.metadata.outputs.dependency-type }} dependency.
+
+          Please review the changes carefully:
+          - Check the changelog for breaking changes
+          - Test the application thoroughly
+          - Verify Vercel preview deployment
+
+          Package: **${{ steps.metadata.outputs.dependency-names }}**
+          Update: ${{ steps.metadata.outputs.previous-version }} → ${{ steps.metadata.outputs.new-version }}"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

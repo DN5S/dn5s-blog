@@ -1,0 +1,59 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    ignore:
+      - dependency-name: "@paper-design/shaders-react"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "astro"
+      - dependency-name: "@astrojs/*"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "@types/react"
+      - dependency-name: "@types/react-dom"
+      - dependency-name: "tailwindcss"
+      - dependency-name: "@tailwindcss/*"
+      - dependency-name: "motion"
+      - dependency-name: "devalue"
+
+    groups:
+      patch-updates:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      minor-utilities:
+        applies-to: version-updates
+        patterns:
+          - "clsx"
+          - "sharp"
+          - "astro-loading-indicator"
+        update-types:
+          - "minor"
+      dev-dependencies:
+        applies-to: version-updates
+        dependency-type: "development"
+        update-types:
+          - "minor"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
